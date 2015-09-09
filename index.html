@@ -16,26 +16,28 @@
     }
     </style>
 </head>
-<body>
-  <form id="main-form">
+<body ng-app="pebbleMvgApp">
+  <form id="main-form" ng-controller="configCtrl">
     <h1 class='title'>MVG Abfahrtsmonitor</h1>
 
-    <div class="item-container">
+    <div class="item-container" ng-repeat="station in stations">
       <div class="item-container-header">Station:</div>
       <div class="item-container-content">
         <label class="item">
-          <div class="item-input-wrapper">
-            <input type="text" class="item-input" name="input-title" placeholder="Titel">
+          <div class="item-input-wrapper item-input-wrapper-button">
+            <input type="text" class="item-input" name="input-title" placeholder="Titel" ng-model="station.title">
           </div>
-		</label>
-		<label class="item">		  
+          <input type="button" class="item-button item-input-button" value="X"  ng-click="stations.splice($index,1)">
+        </label>
+    		<label class="item">		  
           <div class="item-input-wrapper">
-            <input type="text" class="item-input" name="input-subtitle" placeholder="Untertitel">
+            <input type="text" class="item-input" name="input-subtitle" placeholder="Untertitel"  ng-model="station.subtitle">
           </div>		  
         </label>
         <label class="item">
           Station
-          <select name="select-station" dir='rtl' class="item-select">
+          <select name="select-station" dir='rtl' class="item-select" ng-model="station.station">
+            <option class="item-select-option">[Auswählen]</option>
             <option class="item-select-option">Aberlestraße</option>
             <option class="item-select-option">Abtstraße</option>
             <option class="item-select-option">Ackermannbogen</option>
@@ -1130,36 +1132,78 @@
             <option class="item-select-option">Zielstattstraße</option>
             <option class="item-select-option">Zöllerstraße</option>
             <option class="item-select-option">Zoppoter Straße</option>
-            <option class="item-select-option">Züricher Straße</option>
+            <option class="item-select-option">Züricher Straße</option>         
           </select>
         </label>
         <label class="item">
           U-Bahn
-          <input type="checkbox" class="item-checkbox" name="checkbox-ubahn">
+          <input type="checkbox" class="item-checkbox" name="checkbox-ubahn" ng-model="station.ubahn">
         </label>
         <label class="item">
           S-Bahn
-          <input type="checkbox" class="item-checkbox" name="checkbox-sbahn" checked>
+          <input type="checkbox" class="item-checkbox" name="checkbox-sbahn" ng-model="station.sbahn">
         </label>
         <label class="item">
           Bus
-          <input type="checkbox" class="item-checkbox" name="checkbox-bus">
+          <input type="checkbox" class="item-checkbox" name="checkbox-bus" ng-model="station.bus">
         </label>
         <label class="item">
           Tram
-          <input type="checkbox" class="item-checkbox" name="checkbox-tram" checked>
+          <input type="checkbox" class="item-checkbox" name="checkbox-tram"  ng-model="station.tram">
         </label>		
       </div>	  
     </div>	
+
+    <div class="item-container">
+      <div class="button-container">
+        <input type="button" class="item-button" value="Hinzufügen +"  ng-click="stations.push({'title': '', 'subtitle': ''})">
+      </div>
+    </div>
+
+    <div class="item-container">
+      <div class="button-container">
+        <input type="button" class="item-button" value="Speichern..." ng-click="saveConfig()" >
+      </div>
+    </div>
+  </form>
 	
   <script type="text/javascript" src="javascripts/slate.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
+
 
   <script>
+    var pebbleMvgApp = angular.module('pebbleMvgApp', []);
+
+    pebbleMvgApp.controller('configCtrl', function ($scope) {
+      // load settings from localstorage
+      $scope.stations = JSON.parse(localStorage.getItem('mvgConfig'));
+
+      console.log($scope.stations);
+      
+      // set some sample data
+      if ($scope.stations === null) {
+        $scope.stations = [
+            {
+            'title': 'Hautpbahnhof',
+            'subtitle': 'Abfahrten',
+            'station': 'Hauptbahnhof',
+            'sbahn': true,
+            'ubahn': true,
+            'bus': true,
+            'tram': true
+            },
+        ];
+      }
+    
+      // Save settings (scope) to localstorage
+      $scope.saveConfig = function() {
+        localStorage.setItem('mvgConfig', JSON.stringify($scope.stations));
+      };      
+    });
+
 
     /** 
-     * Load config
-     * @return {[type]} [description]
-     */
+     
     function getConfigData() {
       var backgroundColorPicker = document.getElementById('background_color_picker');
       var highContrastCheckbox = document.getElementById('high_contrast_checkbox');
@@ -1195,15 +1239,16 @@
       var return_to = getQueryParam('return_to', 'pebblejs://close#');
       document.location = return_to + encodeURIComponent(JSON.stringify(getConfigData()));
     });
+
     (function() {
       var backgroundColorPicker = document.getElementById('background_color_picker');
       var highContrastCheckbox = document.getElementById('high_contrast_checkbox');
       // Load any previously saved configuration, if available
-      if(localStorage['high_contrast']) {
+      if (localStorage['high_contrast']) {
         highContrastCheckbox.checked = JSON.parse(localStorage['high_contrast']);
         backgroundColorPicker.value = localStorage['background_color'];
       }
-    })();
-  </script>  
+    })();*/
+  </script>
 </body>
 </html>
